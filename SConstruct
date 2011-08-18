@@ -23,27 +23,11 @@ def get_depconf(key_value, include_path='/include/', lib_path='/lib/', lib64_pat
 	return ([ tmp_path+ include_path],[ tmp_path + lib64_path, tmp_path + lib_path ] )
 
 
-if ARGUMENTS.get('gfal_library','0') !='0':
-	gfal_lib_dir = ARGUMENTS.get('gfal_library','0')
-else:
-	gfal_lib_dir = ["/home/adevress/myworkspace/gfal/build/libs/"]
+gfal_headers_dir, gfal_lib_dir = get_depconf('gfal_path', include_path="/include/gfal2", etics_suffix="stage/")
 
-
-if ARGUMENTS.get('gfal_headers','0') !='0':
-	gfal_headers_dir = ARGUMENTS.get('gfal_headers','0')
-else:
-	gfal_headers_dir = ["/home/adevress/myworkspace/gfal/src/"]
-	
-
-stage = ["/home/adevress/workspace/stage/lib64/"]
-srm_ifce_header_dir= etics_build_dir+ "/stage/include"
-
-
-
-
-libs = ['fuse', 'glib-2.0','gfal2'];
-libs_path= gfal_lib_dir 
-headers = gfal_headers_dir
+libs = ['fuse', 'glib-2.0','gfal2', 'uuid'];
+libs_path= gfal_lib_dir + ["../gfal/build/libs/"]
+headers = gfal_headers_dir  + ["../gfal/src/"]
 src_all = Glob("src/*.c");
 resu = "gridfs";
 
