@@ -6,6 +6,9 @@
 
 import os
 
+main_core = False
+
+
 ## pre-defined vars for local build only
 etics_build_dir= "/home/adevress/workspace"
 glib_location = etics_build_dir+ "/repository/externals/glib2-devel/2.12.3/sl5_x86_64_gcc412"
@@ -23,16 +26,17 @@ def get_depconf(key_value, include_path='/include/', lib_path='/lib/', lib64_pat
 	return ([ tmp_path+ include_path],[ tmp_path + lib64_path, tmp_path + lib_path ] )
 
 
-gfal_headers_dir, gfal_lib_dir = get_depconf('gfal_path', include_path="/include/gfal2", etics_suffix="stage/")
+gfal_headers_dir, gfal_lib_dir = get_depconf('gfal_path', include_path="/include/gfal2/", etics_suffix="stage/")
 fuse_headers_dir, fuse_lib_dir = get_depconf('fuse_path', include_path="/include/", etics_suffix="stage/")
 
 libs = ['fuse', 'glib-2.0','gfal2', 'uuid'];
 libs_path= gfal_lib_dir + ["../gfal/build/libs/"] + fuse_lib_dir
 headers = gfal_headers_dir  + ["../gfal/src/"] + fuse_headers_dir
 src_all = Glob("src/*.c");
-resu = "gridfs";
+resu = "gfalFS";
 
 env = Environment(tools=['default', 'packaging']);
+
 
 # debug mode
 if ARGUMENTS.get('debug','0') =='yes':
@@ -45,6 +49,9 @@ if ARGUMENTS.get('production','0') =='yes':
 	env.Append(CFLAGS='-O3')
 
 
+if ARGUMENTS.get('main_core','no') =='yes':
+	main_core=True
+
 r = os.getenv('LD_LIBRARY_PATH')	# get ld path
 env['ENV']['LD_LIBRARY_PATH'] = (r is not None) and r or "" # set ld path or empty one if not exist
 env.Append(CFLAGS=['-D_FILE_OFFSET_BITS=64', '-Wall',  "-D_GRIDFS_VERSION=\\\"1.0\\\""], LIBS=libs, CPPPATH=headers, LIBPATH=libs_path)
@@ -55,6 +62,8 @@ env.ParseConfig('pkg-config --cflags --libs gthread-2.0')
 prog = env.Program(resu, src_all);
 env.Depends(prog, Glob("src/*.h"))
 
+install_list = []
+package_list = []
 
 def define_rpm_install(opt):
 	return 'scons -j 8 '+ opt+ ' --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT" '
@@ -66,12 +75,12 @@ def arguments_to_str():
 		ret += arg+ '=' +value+ ' '
 	return ret
 
-def package_main():
-	env_gridfs= env.Clone()
-	i = env_gridfs.Install("/usr/bin/", prog)
+if(main_core):
+	i = env.Install("/usr/bin/", prog)
+	install_list += i
 	x_rpm_install = define_rpm_install(arguments_to_str());
-	p_main = env_gridfs.Package( 
-			 NAME     = 'gridfs',
+	package_list += env.Package( 
+			 NAME     = 'gfalFS',
 			 VERSION        = version,
 			 PACKAGEVERSION = package_version,
 			 PACKAGETYPE    = 'rpm',
@@ -83,11 +92,7 @@ def package_main():
 			 X_RPM_REQUIRES = 'glib2, fuse, gfal2-core',
 			 source= [i] 
 			 )
-	return p_main
 	
-if ARGUMENTS.get('package','0') !='0':
-	str_func = "package_" + ARGUMENTS.get('package','0')
-	print "package : "+ str_func
-	p_res = globals()[str_func]()
-	Default(p_res)	
 
+env.Alias("install", install_list)
+env.Alias("package_generator", package_list)
