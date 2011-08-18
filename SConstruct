@@ -24,10 +24,11 @@ def get_depconf(key_value, include_path='/include/', lib_path='/lib/', lib64_pat
 
 
 gfal_headers_dir, gfal_lib_dir = get_depconf('gfal_path', include_path="/include/gfal2", etics_suffix="stage/")
+fuse_headers_dir, fuse_lib_dir = get_depconf('fuse_path', include_path="/include/", etics_suffix="stage/")
 
 libs = ['fuse', 'glib-2.0','gfal2', 'uuid'];
-libs_path= gfal_lib_dir + ["../gfal/build/libs/"]
-headers = gfal_headers_dir  + ["../gfal/src/"]
+libs_path= gfal_lib_dir + ["../gfal/build/libs/"] + fuse_lib_dir
+headers = gfal_headers_dir  + ["../gfal/src/"] + fuse_headers_dir
 src_all = Glob("src/*.c");
 resu = "gridfs";
 
@@ -58,11 +59,6 @@ env.Depends(prog, Glob("src/*.h"))
 def define_rpm_install(opt):
 	return 'scons -j 8 '+ opt+ ' --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT" '
 
-def define_rpm_install_with_file(str1, dest_file, content, mode):
-	str1 += " && mkdir -p `dirname " + dest_file + "` "
-	str1 +=	' && echo -e   "'+content+'" > '+ dest_file + " "
-	str1 +=	" && chmod "+str(mode)+'  '+ dest_file + " "
-	return str1
 
 def arguments_to_str():
 	ret = ' ';
