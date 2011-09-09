@@ -540,3 +540,8 @@ struct fuse_operations gfal_oper = {
     .readlink = gfalfs_readlink,
     .unlink = gfalfs_unlink
 };
+
+
+void configure_verbose(){
+	gfal_set_verbose(GFAL_VERBOSE_VERBOSE | GFAL_VERBOSE_TRACE);	
+}

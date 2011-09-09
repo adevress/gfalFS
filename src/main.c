@@ -84,6 +84,7 @@ static void parse_args(int argc, char** argv, int* targc, char** targv){
 				break;
 			case 'v':
 				verbose_mode = TRUE;
+				configure_verbose();
 				printf("verbose mode....\n");
 				break;
 			case 'V':
