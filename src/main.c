@@ -97,10 +97,6 @@ static void parse_args(int argc, char** argv, int* targc, char** targv){
 		}		
 	}
 	int index = optind;
-	/*targv[(*targc)++]= "-o";
-	targv[(*targc)++]= "direct_io";*/
-	targv[(*targc)++]= "-o";
-	targv[(*targc)++]= "max_read=262144";
 	if(guid_mode){
 		if(index +1 != argc){
 			g_printerr("Bad number of arguments \n");

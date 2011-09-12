@@ -183,7 +183,7 @@ static int gfalfs_open(const char *path, struct fuse_file_info *fi)
 	char err_buff[1024];
 	int ret =-1;
 	gfalfs_construct_path(path, buff, 2048);
-	int i = gfal_open(buff,O_RDONLY ,0);
+	int i = gfal_open(buff,fi->flags,755);
 	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_open path %s %d", (char*) path, (int) i);
     if( (ret = -(gfal_posix_code_error())) || i==0){
 		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_open err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
