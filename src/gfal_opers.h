@@ -24,7 +24,7 @@
  * @date 2/07/2011
  * */
  
-#define FUSE_USE_VERSION 26
+#define FUSE_USE_VERSION 28
 
 #include <glib.h>
 #include <fuse.h>

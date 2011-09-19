@@ -31,6 +31,7 @@
 #include <attr/xattr.h>
 #include <string.h>
 #include "gfal_opers.h"
+#include "gfal_ext.h"
 
 char mount_point[2048]; 
 size_t s_mount_point=0;
@@ -191,7 +192,7 @@ static int gfalfs_open(const char *path, struct fuse_file_info *fi)
 		return ret;	
 	}
 	
-	fi->fh= i;
+	fi->fh= (uint64_t) gfalFS_file_handle_new(GINT_TO_POINTER(i), buff);
 	if(fuse_interrupted())
 		return -(ECANCELED);
 	return 0;
@@ -210,7 +211,7 @@ static int gfalfs_creat (const char * path, mode_t mode , struct fuse_file_info 
 		gfal_posix_clear_error();
 		return ret;	
 	}	
-	fi->fh= i;
+	fi->fh= (uint64_t)gfalFS_file_handle_new(GINT_TO_POINTER(i), buff);
 	if(fuse_interrupted())
 		return -(ECANCELED);
 	return 0;	
@@ -244,27 +245,7 @@ static int gfalfs_read(const char *path, char *buf, size_t size, off_t offset,
 {
 	gfal_posix_clear_error();
 	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_read path : %s fd : %d", (char*) path, (int) fi->fh);
-	char buff[2048];
-	char err_buff[1024];
-	gfalfs_construct_path(path, buff, 2048);
-	int i;
-	int ret=-1;
-	i  = gfal_lseek(fi->fh, offset, SEEK_SET);
-	if(i <0 ){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfal_lseek err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
-		ret = -(gfal_posix_code_error());
-		gfal_posix_clear_error();
-		return ret;	
-	}
-	if(fuse_interrupted())
-		return -(ECANCELED);
-    i = gfal_read(fi->fh,(void*)buf, size);
-	if(i <0 ){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_read err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
-		ret = -(gfal_posix_code_error());
-		gfal_posix_clear_error();
-		return ret;
-	}
+	int i = gfalFS_file_handle_read((void*)fi->fh, buf, size, offset);
 	if(fuse_interrupted())
 		return -(ECANCELED);
     return i;
@@ -276,26 +257,7 @@ static int gfalfs_write(const char *path, const char *buf, size_t size, off_t of
 {
 	gfal_posix_clear_error();
 	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_write path : %s fd : %d", (char*) path, (int) fi->fh);
-	char buff[2048];
-	char err_buff[1024];
-	gfalfs_construct_path(path, buff, 2048);
-	int i;
-	int ret;
-	 i = gfal_lseek(fi->fh, offset, SEEK_SET);
-	if(i <0 ){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfal_lseek err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
-		ret = -(gfal_posix_code_error());
-		gfal_posix_clear_error();
-	}
-	if(fuse_interrupted())
-		return -(ECANCELED);
-    i = gfal_write(fi->fh,(void*)buf, size);
-	if(i <0 ){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_write err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
-		ret = -(gfal_posix_code_error());
-		gfal_posix_clear_error();	
-		return ret;
-	}
+	int i= gfalFS_file_handle_write((void*)fi->fh, buf, size, offset);
 	if(fuse_interrupted())
 		return -(ECANCELED);
     return i;
@@ -450,15 +412,14 @@ static int gfalfs_release(const char* path, struct fuse_file_info *fi){
 	gfal_posix_clear_error();
 	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_close fd : %d", (int) fi->fh);
 	char err_buff[1024];
-	int ret;
-    int i = gfal_close(fi->fh);
+	const int fd = GPOINTER_TO_INT(gfalFS_file_handle_get_fd((void*)fi->fh));
+    int i = gfal_close(fd);
 	if(i <0 ){
 		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_close err %d for fd %d: %s ", (int) gfal_posix_code_error(), (int) fi->fh, (char*) gfal_posix_strerror_r(err_buff, 1024));
-		ret = -(gfal_posix_code_error());
+		i = -(gfal_posix_code_error());
 		gfal_posix_clear_error();
-		return ret;
 	}
-
+	gfalFS_file_handle_delete((void*)fi->fh);
     return i;	
 }
 

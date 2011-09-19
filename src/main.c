@@ -97,6 +97,10 @@ static void parse_args(int argc, char** argv, int* targc, char** targv){
 		}		
 	}
 	int index = optind;
+#if FUSE_MINOR_VERSION >= 8
+	targv[(*targc)++] = "-obig_writes";
+#endif
+	targv[(*targc)++] = "-odirect_io";
 	if(guid_mode){
 		if(index +1 != argc){
 			g_printerr("Bad number of arguments \n");
