@@ -18,20 +18,8 @@
 #include "gfal_opers.h"
 
 static const char* str_version = _GRIDFS_VERSION;
-static gboolean verbose_mode = FALSE;
-static gboolean debug_mode = FALSE;
 
-static void gridfs_log_handler(const gchar *log_domain, GLogLevelFlags log_level,
-                                 const gchar *message, gpointer user_data){
-	if( log_level & ( G_LOG_LEVEL_WARNING | G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL)  ){
-		syslog(LOG_WARNING, message);
-	}else if( (log_level & G_LOG_LEVEL_MESSAGE) && verbose_mode){
-		syslog(LOG_INFO, message);	
-	}
-	if(debug_mode)
-		g_printerr("%s\n", message);
-									 
-}
+
      
 static void path_to_abspath(const char* path, char* abs_buff, size_t s_buff){
 	char cdir[2048];
@@ -68,7 +56,7 @@ static void parse_args(int argc, char** argv, int* targc, char** targv){
 	while( (c = getopt(argc, argv, "dshgvV"))  != -1){
 		switch(c){
 			case 'd':
-				debug_mode = TRUE;
+				gfalfs_set_debug_mode(TRUE);
 				targv[*targc] ="-d";
 				*targc+=1;
 				break;
@@ -83,8 +71,7 @@ static void parse_args(int argc, char** argv, int* targc, char** targv){
 				guid_mode = TRUE;
 				break;
 			case 'v':
-				verbose_mode = TRUE;
-				configure_verbose();
+				gfalfs_set_verbose_mode(TRUE);
 				printf("verbose mode....\n");
 				break;
 			case 'V':
@@ -100,7 +87,7 @@ static void parse_args(int argc, char** argv, int* targc, char** targv){
 #if FUSE_MINOR_VERSION >= 8
 	targv[(*targc)++] = "-obig_writes";
 #endif
-	targv[(*targc)++] = "-odirect_io";
+	//targv[(*targc)++] = "-odirect_io";
 	if(guid_mode){
 		if(index +1 != argc){
 			g_printerr("Bad number of arguments \n");
@@ -131,7 +118,6 @@ static void parse_args(int argc, char** argv, int* targc, char** targv){
 int main(int argc, char *argv[])
 {   
 	g_thread_init(NULL);
-	g_log_set_handler (NULL,G_LOG_LEVEL_WARNING | G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL |  G_LOG_LEVEL_MESSAGE, gridfs_log_handler, NULL);	// set default log handler
 	int targc = 1;
 	char* targv[20];
 	targv[0] = argv[0]; 

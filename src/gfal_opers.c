@@ -91,7 +91,7 @@ static void convert_external_readlink_to_local_readlink(char* external_buff, siz
 static int gfalfs_getattr(const char *path, struct stat *stbuf)
 {
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE, "gfalfs_getattr path %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE, "gfalfs_getattr path %s ", (char*) path);
 	char buff[2048];
 	char err_buff[1024];
 	int ret=-1;
@@ -100,7 +100,7 @@ static int gfalfs_getattr(const char *path, struct stat *stbuf)
 		return -(ECANCELED);
     int a= gfal_lstat(buff, stbuf);
     if( (ret = -(gfal_posix_code_error()))){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_getattr error %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_getattr error %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
 		gfal_posix_clear_error();
 		return ret;
 	}
@@ -112,7 +112,7 @@ static int gfalfs_getattr(const char *path, struct stat *stbuf)
 static int gfalfs_readlink(const char *path, char* link_buff, size_t buffsiz)
 {
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE, "gfalfs_readlink path %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE, "gfalfs_readlink path %s ", (char*) path);
 	char buff[2048];
 	char err_buff[1024];
 	char tmp_link_buff[2048];
@@ -121,7 +121,7 @@ static int gfalfs_readlink(const char *path, char* link_buff, size_t buffsiz)
     ssize_t a= gfal_readlink(buff, tmp_link_buff, 2048-1);
 	convert_external_readlink_to_local_readlink(tmp_link_buff, a, link_buff, buffsiz );
     if( (ret = -(gfal_posix_code_error()))){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_readlink error %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_readlink error %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
 		gfal_posix_clear_error();
 		return ret;
 	}
@@ -132,14 +132,14 @@ static int gfalfs_readlink(const char *path, char* link_buff, size_t buffsiz)
 
 static int gfalfs_opendir(const char * path, struct fuse_file_info * f){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_opendir path %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_opendir path %s ", (char*) path);
 	char buff[2048];
 	char err_buff[1024];
 	int ret;
 	gfalfs_construct_path(path, buff, 2048);
 	DIR* i = gfal_opendir(buff);
     if( (ret= -(gfal_posix_code_error()))){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_opendir err %d for path %s: %s", (int)gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_opendir err %d for path %s: %s", (int)gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		gfal_posix_clear_error();
 		return ret;	
 	}
@@ -153,7 +153,7 @@ static int gfalfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                          off_t offset, struct fuse_file_info *fi)
 {
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_readdir path %s ",(char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_readdir path %s ",(char*) path);
 	char buff[2048];
 	char err_buff[1024];
 	gfalfs_construct_path(path, buff, 2048);
@@ -168,7 +168,7 @@ static int gfalfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		filler(buf, d->d_name, NULL,0);
 	}
     if( (ret = -(gfal_posix_code_error()))){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_readdir err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_readdir err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
 		gfal_posix_clear_error();
 		return ret;
 	}
@@ -185,9 +185,9 @@ static int gfalfs_open(const char *path, struct fuse_file_info *fi)
 	int ret =-1;
 	gfalfs_construct_path(path, buff, 2048);
 	int i = gfal_open(buff,fi->flags,755);
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_open path %s %d", (char*) path, (int) i);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_open path %s %d", (char*) path, (int) i);
     if( (ret = -(gfal_posix_code_error())) || i==0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_open err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_open err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
 		gfal_posix_clear_error();
 		return ret;	
 	}
@@ -205,9 +205,9 @@ static int gfalfs_creat (const char * path, mode_t mode , struct fuse_file_info 
 	int ret =-1;
 	gfalfs_construct_path(path, buff, 2048);
 	int i = gfal_creat(buff,mode);
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_open path %s %d", (char*) path, (int) i);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_open path %s %d", (char*) path, (int) i);
     if((ret = -(gfal_posix_code_error())) || i==0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_open err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_open err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
 		gfal_posix_clear_error();
 		return ret;	
 	}	
@@ -220,21 +220,21 @@ static int gfalfs_creat (const char * path, mode_t mode , struct fuse_file_info 
 
 int gfalfs_chown (const char * path, uid_t uid, gid_t guid){
 	// do nothing, change prop not authorized
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_chown path : %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_chown path : %s ", (char*) path);
 	gfal_posix_clear_error();
 	return 0;
 }
 
 int gfalfs_utimens (const char * path, const struct timespec tv[2]){
 	// do nothing, not implemented yet
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_utimens path : %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_utimens path : %s ", (char*) path);
 	gfal_posix_clear_error();
 	return 0;
 }
 
 int gfalfs_truncate (const char * path, off_t size){
 	// do nothing, not implemented yet
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_truncate path : %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_truncate path : %s ", (char*) path);
 	gfal_posix_clear_error();
 	return 0;	
 }
@@ -244,7 +244,7 @@ static int gfalfs_read(const char *path, char *buf, size_t size, off_t offset,
                       struct fuse_file_info *fi)
 {
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_read path : %s fd : %d", (char*) path, (int) fi->fh);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_read path : %s fd : %d", (char*) path, (int) fi->fh);
 	int i = gfalFS_file_handle_read((void*)fi->fh, buf, size, offset);
 	if(fuse_interrupted())
 		return -(ECANCELED);
@@ -256,7 +256,7 @@ static int gfalfs_write(const char *path, const char *buf, size_t size, off_t of
                       struct fuse_file_info *fi)
 {
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_write path : %s fd : %d", (char*) path, (int) fi->fh);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_write path : %s fd : %d", (char*) path, (int) fi->fh);
 	int i= gfalFS_file_handle_write((void*)fi->fh, buf, size, offset);
 	if(fuse_interrupted())
 		return -(ECANCELED);
@@ -267,14 +267,14 @@ static int gfalfs_write(const char *path, const char *buf, size_t size, off_t of
 
 static int gfalfs_access(const char * path, int flag){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_access path : %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_access path : %s ", (char*) path);
 	char buff[2048];
 	char err_buff[1024];
 	int ret;
 	gfalfs_construct_path(path, buff, 2048);	
 	int i = gfal_access(buff, flag);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_access err %d for path %s: %s ", (int)gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_access err %d for path %s: %s ", (int)gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();	
 		return ret;
@@ -287,14 +287,14 @@ static int gfalfs_access(const char * path, int flag){
 
 static int gfalfs_unlink(const char * path){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_access path : %s ", (char*) path);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_access path : %s ", (char*) path);
 	char buff[2048];
 	char err_buff[1024];
 	int ret;
 	gfalfs_construct_path(path, buff, 2048);	
 	int i = gfal_unlink(buff);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_access err %d for path %s: %s ", (int)gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_access err %d for path %s: %s ", (int)gfal_posix_code_error(), (char*) buff, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();	
 		return ret;
@@ -307,14 +307,14 @@ static int gfalfs_unlink(const char * path){
 
 static int gfalfs_mkdir(const char * path, mode_t mode){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_mkdir path : %s ", (char*) path);	
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_mkdir path : %s ", (char*) path);	
 	char buff_path[2048];
 	char err_buff[1024];
 	gfalfs_construct_path(path, buff_path, 2048);
 	int ret;	
 	int i = gfal_mkdir(buff_path, mode);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_mkdir err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_mkdir err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();	
 		return ret;	
@@ -326,7 +326,7 @@ static int gfalfs_mkdir(const char * path, mode_t mode){
 
 static int gfalfs_getxattr (const char * path, const char *name , char *buff, size_t s_buff){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_getxattr path : %s, name : %s, size %d", (char*) path, (char*) name, (int) s_buff);	
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_getxattr path : %s, name : %s, size %d", (char*) path, (char*) name, (int) s_buff);	
 	char buff_path[2048];
 	char err_buff[1024];
 	gfalfs_construct_path(path, buff_path, 2048);
@@ -335,7 +335,7 @@ static int gfalfs_getxattr (const char * path, const char *name , char *buff, si
 	if( i < 0 ){
 		const int errcode = gfal_posix_code_error();
 		if(errcode != ENOATTR)
-			g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_getxattr err %d for path %s: %s ", (int) errcode, (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+			gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_getxattr err %d for path %s: %s ", (int) errcode, (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(errcode);
 		gfal_posix_clear_error();	
 		return ret;	
@@ -348,14 +348,14 @@ static int gfalfs_getxattr (const char * path, const char *name , char *buff, si
 
 static int gfalfs_listxattr (const char * path, char *list, size_t s_list){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_listxattr path : %s, size %d", (char*) path, (int) s_list);	
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_listxattr path : %s, size %d", (char*) path, (int) s_list);	
 	char buff_path[2048];
 	char err_buff[1024];
 	gfalfs_construct_path(path, buff_path, 2048);
 	int ret;	
 	int i = gfal_listxattr(buff_path, list, s_list);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_listxattr err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_listxattr err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();	
 		return ret;	
@@ -367,7 +367,7 @@ static int gfalfs_listxattr (const char * path, char *list, size_t s_list){
 
 static int gfalfs_rename(const char*oldpath, const char* newpath){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_rename oldpath : %s, newpath : %s ", (char*) oldpath, (char*) newpath);	
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_rename oldpath : %s, newpath : %s ", (char*) oldpath, (char*) newpath);	
 	char buff_oldpath[2048];
 	char buff_newpath[2048];
 	char err_buff[1024];
@@ -376,7 +376,7 @@ static int gfalfs_rename(const char*oldpath, const char* newpath){
 	gfalfs_construct_path(newpath, buff_newpath, 2048);	
 	int i = gfal_rename(buff_oldpath, buff_newpath);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_rename err %d for oldpath %s: %s ", (int) gfal_posix_code_error(), (char*) buff_oldpath, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_rename err %d for oldpath %s: %s ", (int) gfal_posix_code_error(), (char*) buff_oldpath, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();
 		return ret;		
@@ -395,10 +395,10 @@ static int gfalfs_symlink(const char*oldpath, const char* newpath){
 	int ret;
 	gfalfs_construct_path_from_abs_local(oldpath, buff_oldpath, 2048);	
 	gfalfs_construct_path(newpath, buff_newpath, 2048);	
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_symlink oldpath : %s, newpath : %s ", (char*) buff_oldpath, (char*) buff_newpath);	
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_symlink oldpath : %s, newpath : %s ", (char*) buff_oldpath, (char*) buff_newpath);	
 	int i = gfal_symlink(buff_oldpath, buff_newpath);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_symlink err %d for oldpath %s: %s ", (int) gfal_posix_code_error(), (char*) buff_oldpath, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_symlink err %d for oldpath %s: %s ", (int) gfal_posix_code_error(), (char*) buff_oldpath, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();
 		return ret;		
@@ -410,12 +410,12 @@ static int gfalfs_symlink(const char*oldpath, const char* newpath){
 
 static int gfalfs_release(const char* path, struct fuse_file_info *fi){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_close fd : %d", (int) fi->fh);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_close fd : %d", (int) fi->fh);
 	char err_buff[1024];
 	const int fd = GPOINTER_TO_INT(gfalFS_file_handle_get_fd((void*)fi->fh));
     int i = gfal_close(fd);
 	if(i <0 ){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_close err %d for fd %d: %s ", (int) gfal_posix_code_error(), (int) fi->fh, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_close err %d for fd %d: %s ", (int) gfal_posix_code_error(), (int) fi->fh, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		i = -(gfal_posix_code_error());
 		gfal_posix_clear_error();
 	}
@@ -425,12 +425,12 @@ static int gfalfs_release(const char* path, struct fuse_file_info *fi){
 
 static int gfalfs_releasedir(const char* path, struct fuse_file_info *fi){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_closedir fd : %d", (int) fi->fh);
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_closedir fd : %d", (int) fi->fh);
 	char err_buff[1024];
     int i = gfal_closedir((DIR*)fi->fh);
     int ret;
 	if(i <0 ){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_closedir err %d for fd %d: %s ", (int) gfal_posix_code_error(), (int) fi->fh, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_closedir err %d for fd %d: %s ", (int) gfal_posix_code_error(), (int) fi->fh, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();
 		return ret;
@@ -440,14 +440,14 @@ static int gfalfs_releasedir(const char* path, struct fuse_file_info *fi){
 
 static int gfalfs_chmod(const char* path, mode_t mode){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_chmod path : %s ", (char*) path);	
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_chmod path : %s ", (char*) path);	
 	char buff_path[2048];
 	char err_buff[1024];
 	int ret;
 	gfalfs_construct_path(path, buff_path, 2048);	
 	int i = gfal_chmod(buff_path, mode);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_chmod err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_chmod err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();
 		return ret;			
@@ -460,14 +460,14 @@ static int gfalfs_chmod(const char* path, mode_t mode){
 
 static int gfalfs_rmdir(const char* path){
 	gfal_posix_clear_error();
-	g_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_rmdir path : %s ", (char*) path);	
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_rmdir path : %s ", (char*) path);	
 	char buff_path[2048];
 	char err_buff[1024];
 	int ret;
 	gfalfs_construct_path(path, buff_path, 2048);	
 	int i = gfal_rmdir(buff_path);
 	if( i < 0){
-		g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_rmdir err %d for path %s: %s ", (int) gfal_posix_code_error(),(char*) buff_path, (char*)gfal_posix_strerror_r(err_buff, 1024));
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_rmdir err %d for path %s: %s ", (int) gfal_posix_code_error(),(char*) buff_path, (char*)gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(gfal_posix_code_error());
 		gfal_posix_clear_error();
 		return ret;		
@@ -503,6 +503,4 @@ struct fuse_operations gfal_oper = {
 };
 
 
-void configure_verbose(){
-	gfal_set_verbose(GFAL_VERBOSE_VERBOSE | GFAL_VERBOSE_TRACE);	
-}
+

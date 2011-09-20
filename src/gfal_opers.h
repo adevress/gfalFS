@@ -33,7 +33,6 @@ void gfalfs_set_local_mount_point(const char* local_mp);
 
 void gfalfs_set_remote_mount_point(const char* remote_mp);
 
-void configure_verbose();
 
 extern gboolean guid_mode;
 extern struct fuse_operations gfal_oper;

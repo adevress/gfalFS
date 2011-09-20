@@ -60,7 +60,7 @@ int gfalFS_file_handle_write(gfalFS_file_handle handle, const char *buf, size_t 
 	if(handle->offset != offset){
 		i = gfal_lseek(GPOINTER_TO_INT(handle->fh), offset, SEEK_SET);
 		if(i <0 ){
-			g_log(NULL, G_LOG_LEVEL_WARNING , "gfal_lseek err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+			gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfal_lseek err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 			ret = -(gfal_posix_code_error());
 			gfal_posix_clear_error();		
 		}
@@ -69,7 +69,7 @@ int gfalFS_file_handle_write(gfalFS_file_handle handle, const char *buf, size_t 
 	if( ret == 0){
 		i = gfal_write(GPOINTER_TO_INT(handle->fh),(void*)buf, size);
 		if(i <0 ){
-			g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_write err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+			gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_write err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 			ret = -(gfal_posix_code_error());
 			gfal_posix_clear_error();	
 		}else{
@@ -93,9 +93,9 @@ int gfalFS_file_handle_read(gfalFS_file_handle handle, const char *buf, size_t s
 	g_mutex_lock(handle->mut);
 	if(handle->offset != offset){
 		i = gfal_lseek(GPOINTER_TO_INT(handle->fh), offset, SEEK_SET);
-		g_log(NULL, G_LOG_LEVEL_MESSAGE , "gfal_lseek random read");
+		gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE , "gfal_lseek random read");
 		if(i <0 ){
-			g_log(NULL, G_LOG_LEVEL_WARNING , "gfal_lseek err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+			gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfal_lseek err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 			ret = -(gfal_posix_code_error());
 			gfal_posix_clear_error();		
 		}
@@ -104,7 +104,7 @@ int gfalFS_file_handle_read(gfalFS_file_handle handle, const char *buf, size_t s
 	if( ret == 0){
 		i = gfal_read(GPOINTER_TO_INT(handle->fh),(void*)buf, size);
 		if(i <0 ){
-			g_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_read err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+			gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_read err %d for path %s: %s ", (int) gfal_posix_code_error(), (char*) handle->path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 			ret = -(gfal_posix_code_error());
 			gfal_posix_clear_error();
 		}else{

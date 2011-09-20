@@ -32,3 +32,9 @@ gboolean gfalfs_get_verbose_mode();
 
 void gfalfs_set_debug_mode(gboolean status);
 gboolean gfalfs_get_debug_mode();
+
+
+void gfalfs_log (const gchar *log_domain,
+					 GLogLevelFlags log_level,
+					 const gchar *format,
+					 ...);
