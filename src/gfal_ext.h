@@ -37,6 +37,22 @@ typedef struct _gfalFS_file_handle{
 } *gfalFS_file_handle;
 
 
+typedef struct _gfalFS_dir_handle{
+	char path[GFALFS_URL_MAX_LEN];
+	void* fh;
+	off_t offset; // current offset
+	struct dirent* dir; // last dir, NULL if no state 
+	struct stat st; // current status
+	GMutex* mut;
+	
+} *gfalFS_dir_handle;
+
+
+gfalFS_dir_handle gfalFS_dir_handle_new(void* fh, const char* dirpath);
+int gfalFS_dir_handle_readdir(gfalFS_dir_handle handle, off_t offset, void* buff, fuse_fill_dir_t filler);
+void* gfalFS_dir_handle_get_fd(gfalFS_dir_handle handle);
+void gfalFS_dir_handle_delete(gfalFS_dir_handle handle);
+
 
 gfalFS_file_handle gfalFS_file_handle_new(void* fh, const char* path);
 

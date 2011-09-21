@@ -16,6 +16,7 @@
 #include <syslog.h>
 #include <glib.h>
 #include "gfal_opers.h"
+#include "params.h"
 
 static const char* str_version = _GRIDFS_VERSION;
 

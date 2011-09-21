@@ -61,13 +61,13 @@ inline gboolean gfalfs_get_debug_mode(){
 
 
 
-static inline void gfalfs_log_debug(const char* prefix, const char* format, va_list* va){
+static inline void gfalfs_log_debug(const char* prefix, const char* format, va_list va){
 	if(gfalfs_get_debug_mode()){
 		char buff[2048];
 		g_strlcpy(buff, prefix, 2048);
 		g_strlcat(buff, format, 2048);
 		g_strlcat(buff, "\n",2048);
-		vfprintf(stderr, buff, *va);		
+		vfprintf(stderr, buff, va);		
 	}
 }
 
