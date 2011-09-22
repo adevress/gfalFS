@@ -42,7 +42,6 @@ typedef struct _gfalFS_dir_handle{
 	void* fh;
 	off_t offset; // current offset
 	struct dirent* dir; // last dir, NULL if no state 
-	struct stat st; // current status
 	GMutex* mut;
 	
 } *gfalFS_dir_handle;

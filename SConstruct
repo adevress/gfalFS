@@ -77,7 +77,8 @@ def arguments_to_str():
 
 if(main_core):
 	i = env.Install("/usr/bin/", prog)
-	install_list += i
+	i2 = env.Install("/usr/bin/", "gfalFS_umount")
+	install_list += [ i, i2 ]
 	x_rpm_install = define_rpm_install(arguments_to_str());
 	package_list += env.Package( 
 			 NAME     = 'gfalFS',
@@ -90,7 +91,7 @@ if(main_core):
 			 X_RPM_GROUP    = 'CERN/grid',
 			 X_RPM_INSTALL= x_rpm_install,
 			 X_RPM_REQUIRES = 'glib2, fuse, gfal2-core',
-			 source= [i] 
+			 source= [i, i2] 
 			 )
 	
 

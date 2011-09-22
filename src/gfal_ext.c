@@ -25,6 +25,7 @@
 #include "gfal_ext.h"
 #include <gfal_api.h>
 #include <errno.h>
+#include <string.h>
 
 
 
@@ -72,7 +73,13 @@ int gfalFS_dir_handle_readdir(gfalFS_dir_handle handle, off_t offset, void* buf,
 		return -(EFAULT);
 	}
 	if(handle->dir != NULL){ // try to recover from  previous saved status
-		if( filler(buf, handle->dir->d_name, &handle->st, handle->offset+1) ==1){ 
+	
+		struct stat st;
+		memset(&st, 0, sizeof(st));
+		st.st_ino = handle->dir->d_ino;
+		st.st_mode = handle->dir->d_type << 12;	
+	
+		if( filler(buf, handle->dir->d_name, &st, handle->offset+1) ==1){ 
 			return 0; // filler buffer full 
 		} else{
 			handle->offset += 1;
@@ -85,18 +92,12 @@ int gfalFS_dir_handle_readdir(gfalFS_dir_handle handle, off_t offset, void* buf,
 		if(fuse_interrupted())
 			return -(ECANCELED);	
 			
-		g_strlcpy(buff, handle->path, 2048);
-		g_strlcat(buff, "/", 2048);
-		g_strlcat(buff, handle->dir->d_name, 2048);
-		
-		if( gfal_lstat(buff, &handle->st) != 0){ // get stats
-			ret = -(gfal_posix_code_error());
-			gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_readdir err %d for path %s: %s ", (int) -ret, (char*)buff, (char*)gfal_posix_strerror_r(err_buff, 1024));
-			gfal_posix_clear_error();
-			return ret;
-		}		
+		struct stat st;
+		memset(&st, 0, sizeof(st));
+		st.st_ino = handle->dir->d_ino;
+		st.st_mode = handle->dir->d_type << 12;	
 	
-		ret = filler(buf, handle->dir->d_name, &handle->st, handle->offset+1);	
+		ret = filler(buf, handle->dir->d_name, &st, handle->offset+1);	
 		if(ret == 1) // buffer full
 			return 0;
 		handle->offset += 1;
