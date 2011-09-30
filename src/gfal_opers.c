@@ -315,8 +315,29 @@ static int gfalfs_getxattr (const char * path, const char *name , char *buff, si
 	int i = gfal_getxattr(buff_path, name, buff, s_buff);
 	if( i < 0 ){
 		const int errcode = gfal_posix_code_error();
-		if(errcode != ENOATTR)
+		if(errcode != ENOATTR) // suppress verbose error for ENOATTR for perfs reasons
 			gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_getxattr err %d for path %s: %s ", (int) errcode, (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
+		ret = -(errcode);
+		gfal_posix_clear_error();	
+		return ret;	
+	}
+	if(fuse_interrupted())
+		return -(ECANCELED);
+	return i;			
+}
+
+
+static int gfalfs_setxattr (const char * path, const char *name , const char *buff, size_t s_buff, int flag){
+	gfal_posix_clear_error();
+	gfalfs_log(NULL, G_LOG_LEVEL_MESSAGE,"gfalfs_setxattr path : %s, name : %s", (char*) path, (char*) name);	
+	char buff_path[2048];
+	char err_buff[1024];
+	gfalfs_construct_path(path, buff_path, 2048);
+	int ret;	
+	int i = gfal_setxattr(buff_path, name, buff, s_buff, flag);
+	if( i < 0 ){
+		const int errcode = gfal_posix_code_error();
+		gfalfs_log(NULL, G_LOG_LEVEL_WARNING , "gfalfs_setxattr err %d for path %s: %s ", (int) errcode, (char*) buff_path, (char*) gfal_posix_strerror_r(err_buff, 1024));
 		ret = -(errcode);
 		gfal_posix_clear_error();	
 		return ret;	
@@ -478,6 +499,7 @@ struct fuse_operations gfal_oper = {
     .utimens = gfalfs_utimens,
     .truncate = gfalfs_truncate,
     .symlink= gfalfs_symlink,
+    .setxattr = gfalfs_setxattr,
     .getxattr= gfalfs_getxattr,
     .listxattr= gfalfs_listxattr,
     .readlink = gfalfs_readlink,

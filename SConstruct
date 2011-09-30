@@ -14,7 +14,7 @@ etics_build_dir= "/home/adevress/workspace"
 glib_location = etics_build_dir+ "/repository/externals/glib2-devel/2.12.3/sl5_x86_64_gcc412"
 
 version = "1.0"
-package_version= "2.0_preview"
+package_version= "2.1_preview"
 
 	
 ## generic function to get conf value
