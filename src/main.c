@@ -39,7 +39,8 @@ static void path_to_abspath(const char* path, char* abs_buff, size_t s_buff){
 }
 
 static void print_help(char* progname){
-	g_printerr("Usage %s [-d] [-s] mount_point grid_url    \n", progname);
+	g_printerr("Usage %s [-d] [-s] [-v] [mount_point] [grid_url]    \n", progname);
+	g_printerr("      %s [-g]           [mount_point]             \n", progname);
 	g_printerr("\t [-d] : Debug mode 					   \n");	
 	g_printerr("\t [-s] : Single thread mode			   \n");	
 	g_printerr("\t [-g] : Guid mode, without grid url		\n");
