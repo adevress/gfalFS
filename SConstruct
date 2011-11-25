@@ -64,6 +64,7 @@ env.Depends(prog, Glob("src/*.h"))
 
 install_list = []
 package_list = []
+comp_list = []
 
 def define_rpm_install(opt):
 	return 'scons -j 8 '+ opt+ ' --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT" '
@@ -76,6 +77,7 @@ def arguments_to_str():
 	return ret
 
 if(main_core):
+	comp_list += prog
 	i = env.Install("/usr/bin/", prog)
 	i2 = env.Install("/usr/bin/", "gfalFS_umount")
 	install_list += [ i, i2 ]
@@ -85,15 +87,15 @@ if(main_core):
 			 VERSION        = version,
 			 PACKAGEVERSION = package_version,
 			 PACKAGETYPE    = 'rpm',
-			 LICENSE        = 'Apache2.0',
+			 LICENSE        = 'Apache-2.0',
 			 SUMMARY        = 'filesystem for the grid',
 			 DESCRIPTION    = 'Fuse filesystem for the grid, based on gfal, support the same url type than gfal',
-			 X_RPM_GROUP    = 'CERN/grid',
+			 X_RPM_GROUP    = 'lcg/grid',
 			 X_RPM_INSTALL= x_rpm_install,
 			 X_RPM_REQUIRES = 'glib2, fuse, gfal2-core',
 			 source= [i, i2] 
 			 )
-	
 
+env.Alias("build", comp_list);	
 env.Alias("install", install_list)
 env.Alias("package_generator", package_list)
