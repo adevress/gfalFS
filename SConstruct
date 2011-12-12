@@ -29,13 +29,25 @@ def get_depconf(key_value, include_path='/include/', lib_path='/lib/', lib64_pat
 gfal_headers_dir, gfal_lib_dir = get_depconf('gfal_path', include_path="/include/gfal2/", etics_suffix="stage/")
 fuse_headers_dir, fuse_lib_dir = get_depconf('fuse_path', include_path="/include/", etics_suffix="stage/")
 
-libs = ['fuse', 'glib-2.0','gfal2', 'uuid'];
-libs_path= gfal_lib_dir + ["../gfal/build/libs/"] + fuse_lib_dir
-headers = gfal_headers_dir  + ["../gfal/src/"] + fuse_headers_dir
+
+
 src_all = Glob("src/*.c");
 resu = "gfalFS";
 
 env = Environment(tools=['default', 'packaging']);
+
+
+libs=[]
+libs_path=[]
+headers=[]
+if ARGUMENTS.get("epel", "no") == "yes":
+	env.ParseConfig('pkg-config --cflags --libs fuse')
+	env.ParseConfig('pkg-config --cflags --libs libgfal2')
+	env.ParseConfig('pkg-config --cflags --libs uuid')
+else:
+	libs = ['fuse', 'glib-2.0','gfal2', 'uuid'];
+	libs_path= gfal_lib_dir + ["../gfal/build/libs/"] + fuse_lib_dir
+	headers = gfal_headers_dir  + ["../gfal/src/"] + fuse_headers_dir
 
 
 # debug mode

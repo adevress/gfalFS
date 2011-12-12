@@ -27,19 +27,19 @@ GFAL 2.0. That allows standard POSIX access to remote distributed files.
 
 %clean
 rm -rf "$RPM_BUILD_ROOT";
-scons  %{?_smp_mflags} main_core=yes production=yes -c build
+scons  %{?_smp_mflags} main_core=yes production=yes epel=yes -c build
 
 %prep
 %setup -q
 
 %build
-scons %{?_smp_mflags} main_core=yes production=yes build
+scons %{?_smp_mflags} main_core=yes production=yes epel=yes build
 
 %postun
 
 %install
 rm -rf "$RPM_BUILD_ROOT"; 
-scons  %{?_smp_mflags} main_core=yes production=yes \
+scons  %{?_smp_mflags} main_core=yes production=yes epel=yes \
 --install-sandbox="$RPM_BUILD_ROOT" install 
 
 %files
