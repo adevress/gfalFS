@@ -1,59 +1,50 @@
-%define projectname gfalFS
-%define version 1.0
-%define release 1.11_preview
+Name:				gfalFS
+Version:			1.0.0
+Release:			1.11_preview
+Summary:			GFAL 2.0 file system 
+Group:				Applications/Internet
+License:			ASL 2.0
+URL:				https://svnweb.cern.ch/trac/lcgutil/wiki/gfal2
+## source URL
+# svn export http://svn.cern.ch/guest/lcgutil/wlcggridfs/trunk gfalfs
+#
+Source:				%{name}-%{version}.src.tar.gz
+BuildRoot:			%{_tmppath}/%{name}-%{version}-%{release}
 
+BuildRequires:		scons
+BuildRequires:		glib2-devel%{?_isa}
+BuildRequires:		gfal2-devel%{?_isa}
+BuildRequires:		fuse-devel%{?_isa}
+Requires:			glib2%{?_isa}
+Requires:			gfal2-core%{?_isa}
+Requires:			fuse%{?_isa}
 
-%define debug_package %{nil}
-
-Name: %{projectname}
-License: Apache-2.0
-Summary: File system for lcg storage system
-Version: %{version}
-Release: %{release}
-Group: Grid/lcg
-BuildRoot: %{_tmppath}/%{projectname}-%{version}-%{release}
-Source: %{projectname}-%{version}-%{release}.src.tar.gz
-BuildRequires: gfal2-devel, glib2-devel, fuse-devel
-Requires: gfal2, glib2, fuse
 %description
-User space file system able to mount \
-any distributed storage system managed by GFAL 2.0 \
-( LFC lfn:// , SRMv1/v2 srm://, rfio rfio://, dcap gsidcap://, local file://, http(s) http://, webdav dav://)
-Allowing the usage of the remote grid files with \
-non-grid applications.
+gfalFS provides a solution to mount any distributed file system managed \
+GFAL 2.0. That allows standard POSIX access to remote distributed files.
 
-
-
-
-
-
-
-
-
-%post 
+%post
 
 %clean
-[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT";
-scons  main_core=yes production=yes -c build
+rm -rf "$RPM_BUILD_ROOT";
+scons  %{?_smp_mflags} main_core=yes production=yes -c build
 
 %prep
 %setup -q
 
 %build
-NUMCPU=`grep processor /proc/cpuinfo | wc -l`; if [[ "$NUMCPU" == "0" ]]; then NUMCPU=1; fi;
-scons -j $NUMCPU main_core=yes production=yes build
+scons %{?_smp_mflags} main_core=yes production=yes build
 
 %postun
 
-
 %install
-[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"; 
-NUMCPU=`grep processor /proc/cpuinfo | wc -l`; if [[ "$NUMCPU" == "0" ]]; then NUMCPU=1; fi;
-scons  -j $NUMCPU  main_core=yes production=yes --install-sandbox="$RPM_BUILD_ROOT" install 
+rm -rf "$RPM_BUILD_ROOT"; 
+scons  %{?_smp_mflags} main_core=yes production=yes \
+--install-sandbox="$RPM_BUILD_ROOT" install 
 
-
- 
 %files
+%{_bindir}/gfalFS
+%{_bindir}/gfal2_umount
 
 %changelog
 * Mon Nov 14 2011 adevress at cern.ch 
