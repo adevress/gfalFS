@@ -43,8 +43,10 @@ scons  %{?_smp_mflags} main_core=yes production=yes epel=yes \
 --install-sandbox="$RPM_BUILD_ROOT" install 
 
 %files
+%defattr (-,root,root)
 %{_bindir}/gfalFS
 %{_bindir}/gfalFS_umount
+
 
 %changelog
 * Mon Nov 14 2011 adevress at cern.ch 
