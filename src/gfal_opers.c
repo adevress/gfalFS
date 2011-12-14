@@ -28,7 +28,6 @@
 #include <gfal_api.h>
 #include <errno.h>
 
-#include <attr/xattr.h>
 #include <string.h>
 #include "gfal_opers.h"
 #include "gfal_ext.h"
