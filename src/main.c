@@ -49,7 +49,7 @@ static void print_help(char* progname){
 }
 
 static void print_version(){
-	printf("gridfs_version : %s \n", str_version);
+	printf("gfalFS_version : %s \n", str_version);
 }
 
 static void parse_args(int argc, char** argv, int* targc, char** targv){

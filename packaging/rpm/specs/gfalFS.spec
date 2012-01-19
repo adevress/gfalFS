@@ -1,7 +1,7 @@
 Name:				gfalFS
 Version:			1.0.0
 Release:			2beta1%{?dist}
-Summary:			Mount/unmount a GFAL file system
+Summary:			Mount and Unmount a GFAL file system
 Group:				Applications/Internet
 License:			ASL 2.0
 URL:				https://svnweb.cern.ch/trac/lcgutil/wiki/gfal2
@@ -9,7 +9,7 @@ URL:				https://svnweb.cern.ch/trac/lcgutil/wiki/gfal2
 Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}.tar.gz 
 BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-BuildRequires:		scons
+BuildRequires:		cmake
 BuildRequires:		glib2-devel
 BuildRequires:		gfal2-devel
 BuildRequires:		fuse-devel
@@ -24,26 +24,29 @@ by GFAL 2.0 permitting easy interactions with a large set of distributed file sy
 
 %clean
 rm -rf "$RPM_BUILD_ROOT";
-scons  %{?_smp_mflags} main_core=yes production=yes epel=yes -c build
+make clean
 
 %prep
 %setup -q
 
 %build
-scons %{?_smp_mflags} main_core=yes production=yes epel=yes build
+%cmake -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} .
+make %{?_smp_mflags}
 
 %postun
 
 %install
 rm -rf "$RPM_BUILD_ROOT"; 
-scons  %{?_smp_mflags} main_core=yes production=yes epel=yes \
---install-sandbox="$RPM_BUILD_ROOT" install 
+make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
 
 %files
 %defattr (-,root,root)
 %{_bindir}/gfalFS
 %{_bindir}/gfalFS_umount
-
+%{_docdir}/%{name}-%{version}/DESCRIPTION
+%{_docdir}/%{name}-%{version}/VERSION
+%{_docdir}/%{name}-%{version}/LICENSE
+%{_docdir}/%{name}-%{version}/README
 
 %changelog
 * Mon Nov 14 2011 adevress at cern.ch 
