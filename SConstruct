@@ -42,7 +42,7 @@ libs_path=[]
 headers=[]
 if ARGUMENTS.get("epel", "no") == "yes":
 	env.ParseConfig('pkg-config --cflags --libs fuse')
-	env.ParseConfig('pkg-config --cflags --libs libgfal2')
+	env.ParseConfig('pkg-config --cflags --libs gfal2')
 else:
 	libs = ['fuse', 'glib-2.0','gfal2'];
 	libs_path= gfal_lib_dir + ["../gfal/build/libs/"] + fuse_lib_dir
