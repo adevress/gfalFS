@@ -1,27 +1,24 @@
 Name:				gfalFS
 Version:			1.0.0
-Release:			1.11_preview
-Summary:			GFAL 2.0 file system 
+Release:			2beta1%{?dist}
+Summary:			Mount/unmount a GFAL file system
 Group:				Applications/Internet
 License:			ASL 2.0
 URL:				https://svnweb.cern.ch/trac/lcgutil/wiki/gfal2
-## source URL
 # svn export http://svn.cern.ch/guest/lcgutil/wlcggridfs/trunk gfalfs
-#
-Source:				%{name}-%{version}.src.tar.gz
-BuildRoot:			%{_tmppath}/%{name}-%{version}-%{release}
+Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}.tar.gz 
+BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildRequires:		scons
-BuildRequires:		glib2-devel%{?_isa}
-BuildRequires:		gfal2-devel%{?_isa}
-BuildRequires:		fuse-devel%{?_isa}
-Requires:			glib2%{?_isa}
-Requires:			gfal2-core%{?_isa}
+BuildRequires:		glib2-devel
+BuildRequires:		gfal2-devel
+BuildRequires:		fuse-devel
+
 Requires:			fuse%{?_isa}
 
 %description
 gfalFS provides a solution to mount any distributed file system managed \
-GFAL 2.0. That allows standard POSIX access to remote distributed files.
+by GFAL 2.0 permitting easy interactions with a large set of distributed file systems. 
 
 %post
 
