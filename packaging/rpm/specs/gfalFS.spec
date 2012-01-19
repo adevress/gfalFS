@@ -17,10 +17,9 @@ BuildRequires:		fuse-devel
 Requires:			fuse%{?_isa}
 
 %description
-gfalFS provides a solution to mount any distributed file system managed \
-by GFAL 2.0 permitting easy interactions with a large set of distributed file systems. 
-
-%post
+gfalFS provides a solution to mount any distributed \
+file system managed by GFAL 2.0 permitting easy \
+interactions with a large set of distributed file systems. 
 
 %clean
 rm -rf "$RPM_BUILD_ROOT";
@@ -32,8 +31,6 @@ make clean
 %build
 %cmake -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} .
 make %{?_smp_mflags}
-
-%postun
 
 %install
 rm -rf "$RPM_BUILD_ROOT"; 
@@ -49,5 +46,5 @@ make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
 %{_docdir}/%{name}-%{version}/README
 
 %changelog
-* Mon Nov 14 2011 adevress at cern.ch 
+* Mon Nov 14 2011 Adrien Devress <adevress at cern.ch> - 1.0.0-2beta1
  - Initial gfalFS 1.0 preview release
